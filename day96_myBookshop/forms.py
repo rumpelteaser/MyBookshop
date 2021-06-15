@@ -8,13 +8,13 @@ from flask_ckeditor import CKEditorField
 
 # WTForms
 
-class CreatePostForm(FlaskForm):
-    title = StringField("Blog Post Title", validators=[DataRequired()])
-    subtitle = StringField("Subtitle", validators=[DataRequired()])
-    #img_url = StringField("Blog Image URL", validators=[DataRequired(), URL()])
-    img_url = StringField("Blog Image URL", validators=[DataRequired()])
-    body = CKEditorField("Blog Content", validators=[DataRequired()])
-    submit = SubmitField("Submit Post")
+class CreateBookForm(FlaskForm):
+    title = StringField("Book Title", validators=[DataRequired()])
+    author = StringField("Author", validators=[DataRequired()])
+    #img_url = StringField("Book Image URL", validators=[DataRequired(), URL()])
+    img_url = StringField("Book Image URL", validators=[DataRequired()])
+    body = CKEditorField("Book Description", validators=[DataRequired()])
+    submit = SubmitField("Enter Book")
 
 
 class CreateRegisterForm(FlaskForm):

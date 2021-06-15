@@ -11,7 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from forms import CreatePostForm, CreateRegisterForm, CreateLoginForm, CreateCommentForm
+from forms import CreateBookForm, CreateRegisterForm, CreateLoginForm, CreateCommentForm
 from functools import wraps
 from flask_gravatar import Gravatar
 import os
@@ -26,7 +26,7 @@ ckeditor = CKEditor(app)
 Bootstrap(app)
 
 # Define default backup image and gravatar link
-post_img = "https://images.unsplash.com/photo-1530482054429-cc491f61333b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1651&q=80"
+book_img = "https://images.unsplash.com/photo-1530482054429-cc491f61333b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1651&q=80"
 gravatar = Gravatar(app,
                     size=100,
                     rating='g',
@@ -41,7 +41,7 @@ if os.environ.get("DATABASE_URL"):  # Use PostGRES
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
 else:   # Use SQLite
     print("Using Local DB")
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookshop.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -53,41 +53,41 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
-    # This will act like a list of BlogPost objects attached to each User.
-    # The "author" refers to the 'author' property in the BlogPost class.
-    posts = relationship("BlogPost", back_populates="author")
+    # This will act like a list of Book objects attached to each User.
+    # The "creator" refers to the 'creator' property in the Book class.
+    books = relationship("Book", back_populates="creator")
     # This will act like a list of Comment objects attached to each User.
-    # The "comment_author" refers to the 'comment_author' property in the Comment class.
-    comments = relationship("Comment", back_populates="comment_author")
+    # The "comment_creator" refers to the 'comment_creator' property in the Comment class.
+    comments = relationship("Comment", back_populates="comment_creator")
 
-class BlogPost(db.Model):
-    __tablename__ = "blog_posts"
+class Book(db.Model):
+    __tablename__ = "books"
     id = db.Column(db.Integer, primary_key=True)
     # Create Foreign Key, in "users.id" 'users' refers to the tablename of User.
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    # Create reference to the User object, "posts" refers to the 'posts' property in the User class.
-    author = relationship("User", back_populates="posts")
+    creator_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    # Create reference to the User object, "books" refers to the 'books' property in the User class.
+    creator = relationship("User", back_populates="books")
     title = db.Column(db.String(250), unique=True, nullable=False)
-    subtitle = db.Column(db.String(250), nullable=False)
+    author = db.Column(db.String(250), nullable=False)
     date = db.Column(db.String(250), nullable=False)
     body = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
-    # This will act like a list of Comment objects attached to each BlogPost.
-    # The "parent_post" refers to the 'parent_post' property in the Comment class.
-    comments = relationship("Comment", back_populates="parent_post")
+    # This will act like a list of Comment objects attached to each Book.
+    # The "parent_book" refers to the 'parent_book' property in the Comment class.
+    comments = relationship("Comment", back_populates="parent_book")
 
 class Comment(db.Model):
     __tablename__ = "comments"
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.Text, nullable=False)
     # Create Foreign Key, in "users.id" 'users' refers to the tablename of User.
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    creator_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     # Create reference to the User object, "comments" refers to the 'comments' property in the User class.
-    comment_author = relationship("User", back_populates="comments")
-    # Create Foreign Key, in "blog_posts.id" 'blog_posts' refers to the tablename of BlogPost.
-    post_id = db.Column(db.Integer, db.ForeignKey("blog_posts.id"))
-    # Create reference to the BlogPost object, "comments" refers to the 'comments' property in the User class.
-    parent_post = relationship("BlogPost", back_populates="comments")
+    comment_creator = relationship("User", back_populates="comments")
+    # Create Foreign Key, in "books.id" 'books' refers to the tablename of Book.
+    book_id = db.Column(db.Integer, db.ForeignKey("books.id"))
+    # Create reference to the Book object, "comments" refers to the 'comments' property in the User class.
+    parent_book = relationship("Book", back_populates="comments")
 
 db.create_all()
 
@@ -115,10 +115,10 @@ def admin_only(function):
 
 
 @app.route('/')
-def get_all_posts():
-    posts = BlogPost.query.all()
+def get_all_books():
+    all_books = Book.query.all()
     return render_template("index.html",
-                           all_posts=posts,
+                           books=all_books,
                            logged_in=current_user.is_authenticated)
 
 
@@ -148,7 +148,7 @@ def register():
             # Log in and authenticate user after adding details to database
             login_user(new_user)
             # Return to main page
-            return redirect(url_for('get_all_posts'))
+            return redirect(url_for('get_all_books'))
         else:
             flash("You already registered that email, log in instead !")
             return redirect(url_for('login'))
@@ -172,7 +172,7 @@ def login():
         if user:
             if check_password_hash(user.password, password):
                 login_user(user)
-                return redirect(url_for('get_all_posts'))
+                return redirect(url_for('get_all_books'))
             else:
                 flash("Sorry, wrong password.")
                 return redirect(url_for('login'))
@@ -190,30 +190,30 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('get_all_posts'))
+    return redirect(url_for('get_all_books'))
 
 
-@app.route("/post/<int:post_id>", methods=["GET", "POST"])
-def show_post(post_id):
-    requested_post = BlogPost.query.get(post_id)
+@app.route("/book/<int:book_id>", methods=["GET", "POST"])
+def show_book(book_id):
+    requested_book = Book.query.get(book_id)
     comment_form = CreateCommentForm()
     if request.method == "POST":
         if current_user.is_authenticated:
-            new_comment = Comment(author_id=current_user.id,
-                                  post_id=requested_post.id,
+            new_comment = Comment(creator_id=current_user.id,
+                                  book_id=requested_book.id,
                                   text=comment_form.comment_text.data)
             db.session.add(new_comment)
             db.session.commit()
-            return redirect(url_for('get_all_posts'))
+            return redirect(url_for('get_all_books'))
         else:
-            flash("Sorry, you have to login to post comments.")
+            flash("Sorry, you have to login to order books.")
             return redirect(url_for('login'))
     else:
-        return render_template("post.html",
-                               post=requested_post,
+        return render_template("book.html",
+                               book=requested_book,
                                form=comment_form,
                                logged_in=current_user.is_authenticated,
-                               comments=requested_post.comments)
+                               comments=requested_book.comments)
 
 
 @app.route("/about")
@@ -226,72 +226,72 @@ def contact():
     return render_template("contact.html", logged_in=current_user.is_authenticated)
 
 
-@app.route("/new-post", methods=["GET", "POST"])
+@app.route("/new-book", methods=["GET", "POST"])
 @login_required
 @admin_only
-def add_new_post():
-    post_form = CreatePostForm()
+def add_new_book():
+    book_form = CreateBookForm()
     if request.method == "POST":
-        if post_form.validate_on_submit():
-            print("Adding post")
-            new_post = BlogPost(
-                title=post_form.title.data,
-                subtitle=post_form.subtitle.data,
-                body=post_form.body.data,
+        if book_form.validate_on_submit():
+            print("Adding book")
+            new_book = Book(
+                title=book_form.title.data,
+                author=book_form.author.data,
+                body=book_form.body.data,
                 #img_url=form.img_url.data,
-                img_url=post_img,
-                author=current_user,
+                img_url=book_img,
+                creator=current_user,
                 date=date.today().strftime("%B %d, %Y")
                 )
-            print("post created")
-            db.session.add(new_post)
+            print("book entry created")
+            db.session.add(new_book)
             db.session.commit()
-            print("post added")
-            return redirect(url_for("get_all_posts"))
+            print("book added")
+            return redirect(url_for("get_all_books"))
         else:
             print("Form not validated")
-            return redirect(url_for("get_all_posts"))
+            return redirect(url_for("get_all_books"))
     else:
-        return render_template("make-post.html",
-                               form=post_form,
+        return render_template("insert-book.html",
+                               form=book_form,
                                logged_in=current_user.is_authenticated)
 
 
-@app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
+@app.route("/edit-book/<int:book_id>", methods=["GET", "POST"])
 @login_required
 @admin_only
-def edit_post(post_id):
-    post = BlogPost.query.get(post_id)
-    edit_form = CreatePostForm(
-        title=post.title,
-        subtitle=post.subtitle,
-        img_url=post.img_url,
-        author=post.author,
-        body=post.body
+def edit_book(book_id):
+    book = Book.query.get(book_id)
+    edit_form = CreateBookForm(
+        title=book.title,
+        author=book.author,
+        img_url=book.img_url,
+        creator=book.creator,
+        body=book.body
         )
     if request.method == "POST":
         if edit_form.validate_on_submit():
-            post.title = edit_form.title.data
-            post.subtitle = edit_form.subtitle.data
-            post.img_url = edit_form.img_url.data
-            #post.author = edit_form.author.data
-            post.body = edit_form.body.data
+            book.title = edit_form.title.data
+            book.author = edit_form.author.data
+            book.img_url = edit_form.img_url.data
+            #book.creator = edit_form.creator.data
+            book.body = edit_form.body.data
             db.session.commit()
-            return redirect(url_for("show_post", post_id=post.id))
+            return redirect(url_for("show_book", book_id=book.id))
     else:
-        return render_template("make-post.html",
+        return render_template("insert-book.html",
                                form=edit_form,
                                logged_in=current_user.is_authenticated)
 
 
-@app.route("/delete/<int:post_id>")
+@app.route("/delete/<int:book_id>")
 @login_required
 @admin_only
-def delete_post(post_id):
-    post_to_delete = BlogPost.query.get(post_id)
-    db.session.delete(post_to_delete)
+def delete_book(book_id):
+    book_to_delete = Book.query.get(book_id)
+    db.session.delete(book_to_delete)
     db.session.commit()
-    return redirect(url_for('get_all_posts'))
+    return redirect(url_for('get_all_books'))
 
 
 # Run the Application

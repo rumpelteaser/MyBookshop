@@ -2,35 +2,32 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
     <!-- Page Header -->
-    <header class="masthead" style="background-image: url('{{post.img_url}}')">
+    <header class="masthead" style="background-image: url('{{book.img_url}}')">
         <div class="overlay"></div>
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-md-10 mx-auto">
-                    <div class="post-heading">
-                        <h1>{{post.title}}</h1>
-                        <h2 class="subheading">{{post.subtitle}}</h2>
-                        <span class="meta">Posted by
-                        <a href="#">{{post.author.name}}</a>
-                        on {{post.date}}</span>
+                    <div class="book-heading">
+                        <h1>{{book.title}}</h1>
+                        <h2 class="subheading">by {{book.author}}</h2>
                     </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Post Content -->
+    <!-- Book Content -->
     <article>
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-md-10 mx-auto">
 
-                    <!-- Post Display Area -->
+                    <!-- Book Display Area -->
 
-                    {{ post.body|safe }}
+                    {{ book.body|safe }}
                     <hr>
                     <div class="clearfix">
-                        <a class="btn btn-primary float-right" href="{{url_for('edit_post', post_id=post.id)}}">Edit Post</a>
+                        <a class="btn btn-primary float-right" href="{{url_for('edit_book', book_id=book.id)}}">Edit Book Entry</a>
                     </div>
 
                     <!-- Input Comment Area -->
@@ -50,13 +47,13 @@
                              {% for comment in comments %}
                              <li>
                                  <div class="commenterImage">
-                                     <img src="{{ comment.comment_author.email | gravatar }}"/>
+                                     <img src="{{ comment.comment_creator.email | gravatar }}"/>
                                  </div>
                                  <div class="commentText">
                                      {{ comment.text|safe }}
                                      <br>
                                      <span class="date sub-text">
-                                     {{ comment.comment_author.name }}
+                                     {{ comment.comment_creator.name }}
                                      </span>
                                  </div>
                              </li>

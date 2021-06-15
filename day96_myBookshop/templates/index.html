@@ -6,9 +6,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-md-10 mx-auto">
+                    <!-- Site Name -->
                     <div class="site-heading">
                         <h1>My Bookshop</h1>
                         <span class="subheading">A website for exchanging books.</span>
+                        <br>
+                        <a class="btn btn-primary " href="{{url_for('add_new_book')}}">Insert New Book</a>
                     </div>
                 </div>
             </div>
@@ -16,36 +19,39 @@
     </header>
 
     <!-- Main Content -->
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 col-md-10 mx-auto">
-                {% for post in all_posts %}
-                <div class="post-preview">
-                    <a href="{{ url_for('show_post', post_id=post.id) }}">
-                        <h2 class="post-title">
-                            {{post.title}}
-                        </h2>
-                        <h3 class="post-subtitle">
-                            {{post.subtitle}}
-                        </h3>
-                    </a>
-                    <p class="post-meta">Posted by
-                        <a href="#">{{post.author.name}}</a>
-                        on {{post.date}}
-                        <a href="{{url_for('delete_post', post_id=post.id) }}">✘</a>
-                    </p>
-                </div>
-                <hr>
-                {% endfor %}
-
-
-                <!-- New Post -->
-                <div class="clearfix">
-                    <a class="btn btn-primary float-right" href="{{url_for('add_new_post')}}">Create New Post</a>
-                </div>
-            </div>
-        </div>
+    <div class="content">
+        <table>
+        {% if books == []: %}
+            <p>List is empty.</p>
+        {% else: %}
+            {% for book in books %}
+                <tr>
+                    <td>
+                        <img class="book-img"
+                             src={{book.img_url}}
+                             alt="No Image Available"
+                             width="120" height="140">
+                    </td>
+                    <td>
+                        <a href="{{ url_for('show_book', book_id=book.id) }}">
+                            <h3>{{ book.author }}</h3>
+                            <h2>{{ book.title }}</h2>
+                        </a>
+                    </td>
+                    <td>
+                        <h4>{{ book.body|safe }}</h4>
+                    </td>
+                    <td>
+                        <a class="btn" href="{{ url_for('delete_book', book_id=book.id) }}">
+                            <b>Remove From List</b>
+                        </a>
+                        <br>
+                        <br>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </table>t
     </div>
-    <hr>
 
 {% include "footer.html" %}
