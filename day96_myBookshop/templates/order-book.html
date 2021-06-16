@@ -3,16 +3,14 @@
 
 {% block content %}
 {% include "header.html" %}
-
     <!-- Page Header -->
-    <header class="masthead" style="background-image: url('{{ url_for('static', filename='img/register.jpg')}}')">
+    <header class="masthead" style="background-image: url({{book.img_url}})">
         <div class="overlay"></div>
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-md-10 mx-auto">
                     <div class="page-heading">
-                        <h1>Register</h1>
-                        <span class="subheading">Enter My Bookshop Community !</span>
+                        <h1>Buy This Book</h1>
                     </div>
                 </div>
             </div>
@@ -22,9 +20,18 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-md-10 mx-auto">
-             
-             {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
-
+                <h5>Buy this book:</h5>
+                <h1>{{ book.title }}</h1>
+                <h2>by {{ book.author }}</h2>
+                <h3>Price: {{ book.price }} €</h3>
+                <br>
+                <br>
+                <a class="btn btn-primary" href="{{ url_for('get_all_books') }}">
+                    <b>Cancel</b>
+                </a>
+                <a class="btn btn-primary" href="https://www.paypal.com/myaccount">
+                    <b>Confirm and Pay</b>
+                </a>
             </div>
         </div>
     </div>

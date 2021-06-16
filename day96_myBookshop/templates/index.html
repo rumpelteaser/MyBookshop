@@ -1,7 +1,7 @@
 {% include "header.html" %}
 
     <!-- Page Header -->
-    <header class="masthead" style="background-image: url('{{ url_for('static', filename='img/index-bg.jpg')}}')">
+    <header class="masthead" style="background-image: url('{{ url_for('static', filename='img/books.jpg')}}')">
         <div class="overlay"></div>
         <div class="container">
             <div class="row">
@@ -9,7 +9,7 @@
                     <!-- Site Name -->
                     <div class="site-heading">
                         <h1>My Bookshop</h1>
-                        <span class="subheading">A website for exchanging books.</span>
+                        <span class="subheading">A website for buying books.</span>
                         <br>
                         <a class="btn btn-primary " href="{{url_for('add_new_book')}}">Insert New Book</a>
                     </div>
@@ -20,38 +20,43 @@
 
     <!-- Main Content -->
     <div class="content">
-        <table>
         {% if books == []: %}
-            <p>List is empty.</p>
+            <h1>No books available.</h1>
         {% else: %}
+        <table>
             {% for book in books %}
                 <tr>
                     <td>
                         <img class="book-img"
                              src={{book.img_url}}
                              alt="No Image Available"
-                             width="120" height="140">
+                             width="200" height="250">
                     </td>
                     <td>
-                        <a href="{{ url_for('show_book', book_id=book.id) }}">
-                            <h3>{{ book.author }}</h3>
-                            <h2>{{ book.title }}</h2>
+                        <h5>{{ book.author }}</h5>
+                        <h2>{{ book.title }}</h2>
+                    </td>
+                    <td>
+                        <p>{{ book.body|safe }}</p>
+                    </td>
+                    <td>
+                        <p>Price: {{ book.price }} €</p>
+                    </td>
+                    <td>
+                        <a class="btn btn-primary" href="{{ url_for('order_book', book_id=book.id) }}">
+                            <b>Buy this book</b>
                         </a>
                     </td>
+
                     <td>
-                        <h4>{{ book.body|safe }}</h4>
-                    </td>
-                    <td>
-                        <a class="btn" href="{{ url_for('delete_book', book_id=book.id) }}">
+                        <a class="btn btn-primary" href="{{ url_for('delete_book', book_id=book.id) }}">
                             <b>Remove From List</b>
                         </a>
-                        <br>
-                        <br>
                     </td>
                 </tr>
             {% endfor %}
-        {% endif %}
         </table>t
+        {% endif %}
     </div>
 
 {% include "footer.html" %}
