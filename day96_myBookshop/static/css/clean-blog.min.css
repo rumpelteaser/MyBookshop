@@ -128,11 +128,13 @@ blockquote {
     padding: 10px;
 }
 
+/*** Removed from this usage of 'clean-blog.min.css' File
 .content p {
     color: red;
     font-style: italic;
     font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
+***/
 
 .caption {
     font-size: 14px;
@@ -493,4 +495,20 @@ footer .copyright {
 .form-control {
     font-size: 1.2rem;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/*** My Additions To Standard 'clean-blog.min.css' File ***/
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+td {
+    padding: 20px;
+}
+
+p {
+    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif
+    font-style: normal;
+    color: black;
 }
