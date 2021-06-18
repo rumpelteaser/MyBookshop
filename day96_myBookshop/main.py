@@ -1,4 +1,4 @@
-# =============== Blog with Users - Main Module =============== #
+# =============== My Bookshop Website - Main Module =============== #
 
 # --------------- Perform Initializations --------------- #
 
